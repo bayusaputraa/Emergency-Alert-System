@@ -53,7 +53,8 @@ class NewEmergencyAlert implements ShouldBroadcast
             'device_id' => $this->alert->device->device_id,
             'location_name' => $this->alert->device->location->name,
             'location_address' => $this->alert->device->location->address,
-            'triggered_at' => $this->alert->triggered_at->toIso8601String(),
+            // 'triggered_at' => $this->alert->triggered_at->toIso8601String(),
+            'triggered_at' => \Carbon\Carbon::parse($this->alert->triggered_at)->toIso8601String(),
             'status' => $this->alert->status,
         ];
     }
