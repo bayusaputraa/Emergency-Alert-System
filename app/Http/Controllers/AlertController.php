@@ -37,6 +37,7 @@ class AlertController extends Controller
         $alert->save();
 
         return redirect()->back()
-            ->with('success', 'Alert has been acknowledged.');
+            ->with('success', 'Alert status has been updated.');
     }
 }
+

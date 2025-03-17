@@ -101,7 +101,8 @@
                                                     <h4 class="font-bold">{{ $alert->device->name }}</h4>
                                                     <p class="text-sm text-gray-600 dark:text-gray-400">
                                                         <span>Location: {{ $alert->device->location->name }}</span><br>
-                                                        <span>Triggered: {{ $alert->triggered_at->format('Y-m-d H:i:s') }}</span>
+                                                        {{-- <span>Triggered: {{ $alert->triggered_at->format('Y-m-d H:i:s') }}</span> --}}
+                                                        <span>Triggered: {{ \Carbon\Carbon::parse($alert->triggered_at)->format('Y-m-d H:i:s') }}</span>
                                                     </p>
                                                 </div>
                                                 <div>

@@ -31,41 +31,49 @@ class DashboardController extends Controller
     }
 
     public function alerts(Request $request)
-    {
-        $query = Alert::with(['device', 'device.location', 'acknowledgedBy']);
+{
+    $query = Alert::with(['device', 'device.location', 'acknowledgedBy']);
 
-        // Filter by status if requested
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // Filter by device if requested
-        if ($request->has('device_id')) {
-            $query->where('device_id', $request->device_id);
-        }
-
-        // Filter by location if requested
-        if ($request->has('location_id')) {
-            $query->whereHas('device', function($q) use ($request) {
-                $q->where('location_id', $request->location_id);
-            });
-        }
-
-        // Filter by date range if requested
-        if ($request->has('start_date') && $request->has('end_date')) {
-            $query->whereBetween('triggered_at', [
-                $request->start_date . ' 00:00:00',
-                $request->end_date . ' 23:59:59'
-            ]);
-        }
-
-        $alerts = $query->orderBy('triggered_at', 'desc')
-            ->paginate(15)
-            ->appends($request->all());
-
-        $devices = Device::all();
-        $locations = Location::all();
-
-        return view('dashboard.alerts', compact('alerts', 'devices', 'locations'));
+    // Filter by status if requested
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
     }
+
+    // Filter by device if requested
+    if ($request->filled('device_id')) {
+        $query->where('device_id', $request->device_id);
+    }
+
+    // Filter by location if requested
+    if ($request->filled('location_id')) {
+        $query->whereHas('device', function($q) use ($request) {
+            $q->where('location_id', $request->location_id);
+        });
+    }
+
+    // Filter by date range if requested
+    if ($request->filled('start_date') && $request->filled('end_date')) {
+        try {
+            $startDate = date('Y-m-d 00:00:00', strtotime($request->start_date));
+            $endDate = date('Y-m-d 23:59:59', strtotime($request->end_date));
+
+            $query->whereBetween('triggered_at', [$startDate, $endDate]);
+        } catch (\Exception $e) {
+            // Log error or handle invalid date format
+        }
+    }
+
+    // Debug query if needed
+    // \Log::info('SQL: ' . $query->toSql());
+    // \Log::info('Bindings: ' . json_encode($query->getBindings()));
+
+    $alerts = $query->orderBy('triggered_at', 'desc')
+        ->paginate(15)
+        ->appends($request->all());
+
+    $devices = Device::all();
+    $locations = Location::all();
+
+    return view('dashboard.alerts', compact('alerts', 'devices', 'locations'));
+}
 }
